@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A simple API to register, authenticate, and validate IBANs.",
   "main": "iban_validation_api.js",
+  "author": "Ahmed Asakrah",
   "scripts": {
     "start": "node iban_validation_api.js"
   },
