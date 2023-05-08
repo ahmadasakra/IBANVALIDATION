@@ -4,7 +4,7 @@ info:
   version: 1.0.0
   description: A simple API to register, authenticate, and validate IBANs.
 servers:
-  - url: http://localhost:3000/api
+  - url: https://ibanvalidation-api.onrender.com:10000/api
 paths:
   /ibanvalidation:
     get:
