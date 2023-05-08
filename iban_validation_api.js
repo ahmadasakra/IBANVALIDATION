@@ -30,13 +30,13 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests, please try again later.',
-});
+// const apiLimiter = rateLimit({
+//     windowMs: 15 * 60 * 1000, // 15 minutes
+//     max: 100, // limit each IP to 100 requests per windowMs
+//     message: 'Too many requests, please try again later.',
+// });
 
-app.use('/api/', apiLimiter); // apply the rate limit to all routes starting with /api/
+// app.use('/api/', apiLimiter); // apply the rate limit to all routes starting with /api/
 
 function generateAccessToken(username) {
     return jwt.sign(username, process.env.JWT_SECRET, { expiresIn: '1800s' });
