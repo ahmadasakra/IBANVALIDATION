@@ -1,63 +1,9 @@
 const express = require('express');
 const cors = require('cors');
-//const rateLimit = require('express-rate-limit');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const mongoose = require('mongoose');
-
-mongoose.set('strictQuery', true);
-
 const app = express();
 require('dotenv').config();
 
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-
-const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-});
-
-const User = mongoose.model('User', userSchema);
-
-function generateRandomString(length) {
-    return crypto.randomBytes(length).toString('hex');
-}
-const secretKey = generateRandomString(32); // Generates a 32-byte random string
-process.env.JWT_SECRET = secretKey;
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-
-// const apiLimiter = rateLimit({
-//     windowMs: 15 * 60 * 1000, // 15 minutes
-//     max: 100, // limit each IP to 100 requests per windowMs
-//     message: 'Too many requests, please try again later.',
-// });
-
-// app.use('/api/', apiLimiter); // apply the rate limit to all routes starting with /api/
-
-function generateAccessToken(username) {
-    return jwt.sign(username, process.env.JWT_SECRET, { expiresIn: '1800s' });
-}
-
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-        return res.sendStatus(401);
-    }
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.sendStatus(403);
-        }
-        req.user = user;
-        next();
-    });
-}
 
 function is_valid_iban(iban) {
 
@@ -85,47 +31,7 @@ function is_valid_iban(iban) {
     return BigInt(ibanDigits) % 97n === 1n;
 }
 
-app.post('/api/register', async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
-
-    if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password are required' });
-    }
-
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, password: hashedPassword });
-        await newUser.save();
-        res.status(201).json({ message: 'User registered successfully' });
-    } catch (err) {
-        res.status(500).json({ error: 'Error registering user' });
-    }
-});
-
-app.post('/api/authenticate', async (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
-
-    if (!username || !password) {
-        return res.status(400).json({ error: 'Username and password are required' });
-    }
-
-    try {
-        const user = await User.findOne({ username });
-
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).json({ error: 'Invalid username or password' });
-        }
-
-        const accessToken = generateAccessToken({ name: username });
-        res.json({ accessToken });
-    } catch (err) {
-        res.status(500).json({ error: 'Error authenticating user' });
-    }
-});
-
-app.get('/api/ibanvalidation', authenticateToken, (req, res) => {
+app.get('/api/ibanvalidation', (req, res) => {
     const iban = req.query.iban || '';
 
     const countries = {
