@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
+//const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const bodyParser = require('body-parser');
